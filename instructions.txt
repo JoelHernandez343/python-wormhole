@@ -1,0 +1,6 @@
+# initial bundle
+
+git tag -f "wormhole/initial_commit" HEAD
+git bundle create <remoteA>.bundle <branches>
+
+# 
