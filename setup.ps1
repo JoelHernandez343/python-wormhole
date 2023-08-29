@@ -27,15 +27,6 @@ $scriptsHomeFolder = "python_apps"
 $installationPath = "$env:USERPROFILE\$scriptsHomeFolder\$projectName"
 
 function Set-DistPackage {
-    # $options = @{
-    #     Path             = $distFiles
-    #     CompressionLevel = "Optimal"
-    #     DestinationPath  = "$distDir\$distZipName"
-    # }
-
-    # New-Item -Force $distDir -Type Directory > $null
-    # Compress-Archive @options -Force
-
     Remove-Item -Path $distPackagePath -ErrorAction SilentlyContinue -Force -Recurse
     New-Item -Path $distPackagePath -Type Directory -Force > $null
     Write-Host "> Created $distPackagePath"
@@ -109,4 +100,7 @@ elseif ($Command -eq "install") {
 }
 elseif ($Command -eq "uninstall") {
     Uninstall-Package
+}
+else {
+    Write-Host "Select dist, install or uninstall"
 }
