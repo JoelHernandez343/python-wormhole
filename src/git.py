@@ -1,3 +1,9 @@
+# Joel Hernández @ 2023
+# Github profile: https://github.com/JoelHernandez343
+
+# typing
+import __future__
+
 # libs
 import subprocess
 
@@ -12,11 +18,8 @@ class ExecutionResults(NamedTuple):
     code: int
 
 
-def gitex(arguments: list[str]) -> ExecutionResults:
-    process = subprocess.run(
-        ["powershell.exe", "git"] + arguments,
-        capture_output=True,
-    )
+def gitex(args: list[str]) -> ExecutionResults:
+    process = subprocess.run(["git.exe"] + args, capture_output=True)
 
     out = process.stdout.decode("utf-8")
     err = process.stderr.decode("utf-8")
@@ -26,15 +29,26 @@ def gitex(arguments: list[str]) -> ExecutionResults:
 
 
 def exists() -> bool:
-    return gitex(["--version"]).code == 0
+    try:
+        return gitex(["--version"]).code == 0
+    except FileNotFoundError:
+        return False
 
 
 def is_repo() -> bool:
     return gitex(["rev-parse", "--is-inside-work-tree"]).code == 0
 
 
-def head_detached_or_no_commits() -> bool:
+def is_head_detached_or_no_commits() -> bool:
     return gitex(["rev-parse", "--abbrev-ref", "HEAD"]).out == "HEAD\n"
+
+
+def is_merging_in_progress() -> bool:
+    return gitex(["merge", "HEAD"]).code != 0
+
+
+def are_uncommited_changes() -> bool:
+    return len(gitex(["status", "--porcelain"]).out.split("\n")) > 1
 
 
 def current_branch() -> str | None:
