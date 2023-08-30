@@ -1,3 +1,6 @@
+# Joel Hernández @ 2023
+# Github profile: https://github.com/JoelHernandez343
+
 from argparse import ArgumentParser
 
 
