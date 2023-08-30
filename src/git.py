@@ -3,12 +3,10 @@
 
 # typing
 import __future__
+from typing import NamedTuple
 
 # libs
 import subprocess
-
-
-from typing import NamedTuple
 
 
 # types
@@ -51,8 +49,26 @@ def are_uncommited_changes() -> bool:
     return len(gitex(["status", "--porcelain"]).out.split("\n")) > 1
 
 
+def get_tags_w_commits(remote: str, branch: str) -> list[list[str]]:
+    tags = gitex(
+        [
+            "for-each-ref",
+            "--sort=-creatordate",
+            "--format",
+            r"%(refname)-%(objectname)",
+            f"refs/tags/wormhole/{remote}/{branch}",
+        ]
+    ).out.split("\n")
+
+    return [tag.replace("refs/tags/", "").split("-") for tag in tags if tag]
+
+
 def current_branch() -> str | None:
     if branch := gitex(["branch", "--show-current"]).out.replace("\n", ""):
         return branch
     else:
         return None
+
+
+def current_commit() -> str:
+    return gitex(["rev-parse", "HEAD"]).out.replace("\n", "")
