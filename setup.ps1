@@ -18,7 +18,6 @@ $distPackagePath = "$distDir\$distPackageName"
 $distFiles = @(
     "src\",
     "__main__.py",
-    "__init__.py",
     "README.md",
     "README.html"
 )
