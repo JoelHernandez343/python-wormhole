@@ -49,7 +49,7 @@ def are_uncommited_changes() -> bool:
     return len(gitex(["status", "--porcelain"]).out.split("\n")) > 1
 
 
-def get_tags_w_commits(remote: str, branch: str) -> list[list[str]]:
+def get_tags_w_commits(remote: str, branch: str) -> tuple[tuple[str]]:
     tags = gitex(
         [
             "for-each-ref",
@@ -60,7 +60,7 @@ def get_tags_w_commits(remote: str, branch: str) -> list[list[str]]:
         ]
     ).out.split("\n")
 
-    return [tag.replace("refs/tags/", "").split("-") for tag in tags if tag]
+    return tuple(tuple(tag.replace("refs/tags/", "").split("-")) for tag in tags if tag)
 
 
 def current_branch() -> str | None:
