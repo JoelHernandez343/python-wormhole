@@ -37,19 +37,19 @@ def is_repo() -> bool:
     return gitex(["rev-parse", "--is-inside-work-tree"]).code == 0
 
 
-def is_head_detached_or_no_commits() -> bool:
-    return gitex(["rev-parse", "--abbrev-ref", "HEAD"]).out == "HEAD\n"
+def has_any_commits() -> bool:
+    return gitex(["rev-parse", "--verify", "HEAD"]).code == 0
 
 
 def is_merging_in_progress() -> bool:
     return gitex(["merge", "HEAD"]).code != 0
 
 
-def are_uncommited_changes() -> bool:
+def has_uncommited_changes() -> bool:
     return len(gitex(["status", "--porcelain"]).out.split("\n")) > 1
 
 
-def get_tags_w_commits(remote: str, branch: str, custom_ref: str = None) -> tuple[tuple[str, str]]:
+def get_tags_with_commits(remote: str, branch: str, custom_ref: str = None) -> tuple[tuple[str, str]]:
     if not custom_ref:
         custom_ref = branch
 
@@ -79,7 +79,7 @@ def get_current_commit() -> str:
     return gitex(["rev-parse", "HEAD"]).out.replace("\n", "")
 
 
-def get_current_name_n_email() -> tuple[str, str]:
+def get_current_user_info() -> tuple[str, str]:
     name = gitex(["config", "user.name"]).out.replace("\n", "").strip()
     email = gitex(["config", "user.email"]).out.replace("\n", "").strip()
 
@@ -111,16 +111,16 @@ def get_branch_bundle_range(remote: str, branch: str, custom_ref: str = None) ->
         return None
 
     current_commit = get_commit_from_ref(custom_ref)
-    tags_w_commits = get_tags_w_commits(remote, branch, custom_ref)[:2]
+    tags_w_commits = get_tags_with_commits(remote, branch, custom_ref)[:2]
     number_of_tags = len(tags_w_commits)
 
     if number_of_tags == 0:
         return custom_ref
 
-    last_commit = tags_w_commits[0][1]
+    latest_commit = tags_w_commits[0][1]
 
-    if last_commit != current_commit:
-        return f"{last_commit}..{custom_ref}"
+    if latest_commit != current_commit:
+        return f"{latest_commit}..{custom_ref}"
 
     if number_of_tags == 1:
         return custom_ref
