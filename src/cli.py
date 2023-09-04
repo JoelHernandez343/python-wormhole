@@ -1,8 +1,38 @@
 # Joel Hernández @ 2023
 # Github profile: https://github.com/JoelHernandez343
 
+# typing
+import __future__
+from typing import NamedTuple, Literal
+
+# libs
 import sys
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
+
+
+# types
+class Arguments(NamedTuple):
+    command: Literal["config", "init", "send", "sync", "remote"]
+    subcommand: Literal["list", "add", "remove"]
+
+    id: str
+
+    email: str
+    auto: bool
+    show: bool
+    get_config_path: str
+
+    uuid: str
+
+    branches: list[str]
+    all: bool
+    store_only: bool
+    from_ref: str
+    no_tag: bool
+
+    path: str
+    update: bool
+
 
 # constants
 CURRENT_VERSION = "pre-0.0.1"
@@ -40,7 +70,16 @@ def init_cli() -> ArgumentParser:
         "--auto",
         help="get username and email from git itself",
         action="store_true",
-        default=not all(arg in sys.argv for arg in ["--id", "--email"]),
+    )
+    config_cmd.add_argument(
+        "--show",
+        action="store_true",
+        help="shows current configuration",
+    )
+    config_cmd.add_argument(
+        "--get-config-path",
+        action="store_true",
+        help="shows config path",
     )
 
     # init command
@@ -74,7 +113,6 @@ def init_cli() -> ArgumentParser:
     )
     send_cmd.add_argument(
         "--all",
-        dest="include_all_branches",
         action="store_true",
         help="indicate if include all branches",
     )
@@ -114,7 +152,6 @@ def init_cli() -> ArgumentParser:
     )
     sync_cmd.add_argument(
         "--all",
-        dest="include_all_branches",
         action="store_true",
         help="indicate if include all branches",
     )

@@ -21,12 +21,10 @@
 
 
 from .src.cli import init_cli
-from .src import git
+from .src import app, git
 
 if __name__ == "__main__":
-    if git.exists():
-        print(git.is_repo())
-        print(git.head_detached_or_no_commits())
+    app.run()
 
     # cli = init_cli()
     # args = cli.parse_args()
