@@ -86,6 +86,14 @@ def get_current_name_n_email() -> tuple[str, str]:
     return name, email
 
 
+def get_commit_from_ref(ref: str) -> str | None:
+    if is_ref(ref):
+        return gitex(["rev-parse", "--verify", ref]).out.replace("\n", "")
+
+    print(f"! Error: {ref} is not a valid ref (branch or tag)")
+    return None
+
+
 def is_ref(possible_ref: str) -> bool:
     result = gitex(["rev-parse", "--symbolic-full-name", possible_ref])
 
@@ -94,7 +102,6 @@ def is_ref(possible_ref: str) -> bool:
 
 # no commits => error
 # merge => error
-# custom_ref == commit => error
 def get_branch_bundle_range(remote: str, branch: str, custom_ref: str = None) -> str | None:
     if not custom_ref:
         custom_ref = branch
@@ -103,7 +110,7 @@ def get_branch_bundle_range(remote: str, branch: str, custom_ref: str = None) ->
         print(f"! Error: {custom_ref} is not a valid ref (branch or tag)")
         return None
 
-    current_commit = get_current_commit()
+    current_commit = get_commit_from_ref(custom_ref)
     tags_w_commits = get_tags_w_commits(remote, branch, custom_ref)[:2]
     number_of_tags = len(tags_w_commits)
 
