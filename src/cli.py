@@ -62,7 +62,7 @@ def init_cli() -> ArgumentParser:
     send_cmd.add_argument(
         "branches",
         nargs="*",
-        help="array of branches",
+        help="array of branches to bundle",
         metavar="<branch>",
     )
     send_cmd.add_argument(
@@ -79,9 +79,19 @@ def init_cli() -> ArgumentParser:
         help="indicate if include all branches",
     )
     send_cmd.add_argument(
-        "--store_only",
+        "--store-only",
         action="store_true",
         help="only save bundle in default and remote's path if any",
+    )
+    send_cmd.add_argument(
+        "--from-ref",
+        help="use custom ref instead of current branch, ignored when multiple branches to bundle are provided",
+        metavar="<reference>",
+    )
+    send_cmd.add_argument(
+        "--no-tag",
+        action="store_true",
+        help="do not create a new bundle tag",
     )
 
     # sync command
@@ -120,11 +130,11 @@ def init_cli() -> ArgumentParser:
         required=True,
     )
 
+    # remote list subcommand
+    list_remote_subcmd = remote_subcommands.add_parser("list", help="list remotes")
+
     # remote add subcommand
-    add_remote_subcmd = remote_subcommands.add_parser(
-        "add",
-        help="add remote",
-    )
+    add_remote_subcmd = remote_subcommands.add_parser("add", help="add remote")
     add_remote_subcmd.add_argument(
         "id",
         help="remote's id to add",
