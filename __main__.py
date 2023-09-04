@@ -19,9 +19,7 @@
 # Based on http://stackoverflow.com/a/3639182/2877364
 # Art based in Henry Segerman's
 
-
-from .src.cli import init_cli
-from .src import app, git
+from .src import app
 
 if __name__ == "__main__":
     app.run()
