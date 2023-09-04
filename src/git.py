@@ -49,14 +49,19 @@ def are_uncommited_changes() -> bool:
     return len(gitex(["status", "--porcelain"]).out.split("\n")) > 1
 
 
-def get_tags_w_commits(remote: str, branch: str) -> tuple[tuple[str, str]]:
+def get_tags_w_commits(remote: str, branch: str, custom_ref: str = None) -> tuple[tuple[str, str]]:
+    if not custom_ref:
+        custom_ref = branch
+
     tags = gitex(
         [
-            "for-each-ref",
-            "--sort=-creatordate",
+            "tag",
+            "--merged",
+            custom_ref,
             "--format",
             r"%(refname)-%(objectname)",
-            f"refs/tags/wormhole/{remote}/{branch}",
+            "--sort=-creatordate",
+            f"wormhole/{remote}/{branch}/*",
         ]
     ).out.split("\n")
 
@@ -74,20 +79,43 @@ def get_current_commit() -> str:
     return gitex(["rev-parse", "HEAD"]).out.replace("\n", "")
 
 
-def get_branch_bundle_range(remote: str, branch: str) -> str:
+def get_current_name_n_email() -> tuple[str, str]:
+    name = gitex(["config", "user.name"]).out.replace("\n", "").strip()
+    email = gitex(["config", "user.email"]).out.replace("\n", "").strip()
+
+    return name, email
+
+
+def is_ref(possible_ref: str) -> bool:
+    result = gitex(["rev-parse", "--symbolic-full-name", possible_ref])
+
+    return result.code == 0 and result.out.replace("\n", "")
+
+
+# no commits => error
+# merge => error
+# custom_ref == commit => error
+def get_branch_bundle_range(remote: str, branch: str, custom_ref: str = None) -> str | None:
+    if not custom_ref:
+        custom_ref = branch
+
+    if not is_ref(custom_ref):
+        print(f"! Error: {custom_ref} is not a valid ref (branch or tag)")
+        return None
+
     current_commit = get_current_commit()
-    tags_w_commits = get_tags_w_commits(remote, branch)[:2]
+    tags_w_commits = get_tags_w_commits(remote, branch, custom_ref)[:2]
     number_of_tags = len(tags_w_commits)
 
     if number_of_tags == 0:
-        return branch
+        return custom_ref
 
     last_commit = tags_w_commits[0][1]
 
     if last_commit != current_commit:
-        return f"{last_commit}..{branch}"
+        return f"{last_commit}..{custom_ref}"
 
     if number_of_tags == 1:
-        return branch
+        return custom_ref
 
-    return f"{tags_w_commits[1][1]}..{branch}"
+    return f"{tags_w_commits[1][1]}..{custom_ref}"
